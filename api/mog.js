@@ -51,6 +51,12 @@ const PROMPTS = {
 // Same text as REFS_PROMPT in just-mog-it bot/mogme_queue.py. If the files are missing
 // the edit still runs, just without references.
 const REFS_PROMPT = "The images after this text are owner-approved examples of the target look. Copy only how their shades are shaped, fitted to the face and drawn in each picture's own art style. Do NOT copy any text, letters, words, logos or brand names from them (ignore any lettering on their frames), and never copy their faces, characters, clothing, jewellery, captions or backgrounds.";
+// Owner 2026-11-07: the PIT VIPER logo on the frames is random per vipers edit (some have it,
+// some don't). Same text as VIPERS_LOGO_PROMPT / REFS_LOGO_PROMPT in the bot.
+const VIPERS_LOGO_PROMPT = "Edit this profile picture: add wraparound shield sport sunglasses to the face. Draw the sunglasses in exactly the same art style as the input image (a photo stays a photo, a cartoon stays a cartoon, pixel art stays pixel art, 3D stays 3D). Fit them to the face: sized to the head, centered on the eyes, following the head's angle and tilt, with the arms going back behind the ears or hair. Take the frame and lens colours from the picture's own palette. Put the PIT VIPER logo lettering small and clean on the side of the frames, and no other text anywhere on the frames or lenses. Keep the face, identity, pose, clothing and background otherwise unchanged. Square 1:1 profile picture.";
+const REFS_LOGO_PROMPT = "The images after this text are owner-approved examples of the target look. Copy only how their shades are shaped, fitted to the face and drawn in each picture's own art style. The only lettering allowed is the PIT VIPER logo on the frames; never copy any other text, captions or logos, and never copy their faces, characters, clothing, jewellery or backgrounds.";
+const FRAME_LOGO_ODDS = 0.5;
+
 function readRef(file) {
   try {
     return fs.readFileSync(file).toString("base64");
@@ -131,6 +137,10 @@ module.exports = async function handler(req, res) {
     return send(res, 413, { error: "image_too_large" });
   }
 
+  const frameLogo = style === "vipers" && Math.random() < FRAME_LOGO_ODDS;
+  const promptText = frameLogo ? VIPERS_LOGO_PROMPT : PROMPTS[style];
+  const refsText = frameLogo ? REFS_LOGO_PROMPT : REFS_PROMPT;
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 55000);
 
@@ -147,11 +157,11 @@ module.exports = async function handler(req, res) {
         contents: [
           {
             parts: [
-              { text: PROMPTS[style] },
+              { text: promptText },
               { inline_data: { mime_type: image.mimeType, data: image.data } }
             ].concat(
               style === "vipers" && STYLE_REFS.length
-                ? [{ text: REFS_PROMPT }].concat(
+                ? [{ text: refsText }].concat(
                     STYLE_REFS.map((data) => ({ inline_data: { mime_type: "image/jpeg", data: data } }))
                   )
                 : []
@@ -191,7 +201,8 @@ module.exports = async function handler(req, res) {
         const mime = inline.mimeType || inline.mime_type || "image/png";
         return send(res, 200, {
           image: "data:" + mime + ";base64," + inline.data,
-          style: style
+          style: style,
+          frame_logo: frameLogo
         });
       }
     }
