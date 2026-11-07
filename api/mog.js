@@ -18,22 +18,28 @@ const GEMINI_URL =
 
 const PROMPTS = {
   vipers:
-    "Edit this profile photo: put oversized rainbow-gradient Pit Viper shield " +
-    "sunglasses on the person's face, perfectly fitted and realistic. Add subtle " +
-    "neon pink and cyan glitch streaks around the edges of the frame. Keep the " +
-    "person's face, pose, clothing and background otherwise unchanged and " +
-    "photorealistic. Square 1:1 profile picture, face centered.",
+    "Edit this profile picture: add wraparound shield sport sunglasses to the " +
+    "face. Draw the sunglasses in exactly the same art style as the input image " +
+    "(a photo stays a photo, a cartoon stays a cartoon, pixel art stays pixel " +
+    "art, 3D stays 3D). Fit them to the face: sized to the head, centered on the " +
+    "eyes, following the head's angle and tilt, with the arms going back behind " +
+    "the ears or hair. Take the frame and lens colours from the picture's own " +
+    "palette. No text, letters, logos or brand names anywhere on the frames or " +
+    "lenses. Keep the face, identity, pose, clothing and background otherwise " +
+    "unchanged. Square 1:1 profile picture.",
   glitch:
     "Transform this photo into a bold glitch-anime profile picture: convert the " +
     "person into an anime illustration with a dark silhouette face, oversized " +
-    "hot-pink Pit Viper shield sunglasses, vivid RGB-split glitch slices and " +
+    "hot-pink wraparound shield sport sunglasses with no text or logos on the " +
+    "frames, vivid RGB-split glitch slices and " +
     "neon pink, cyan and yellow streak artifacts exploding outward, high " +
     "contrast, clean light background, and the words GET MOGGED in chunky italic " +
     "block letters along the bottom. Square 1:1 avatar composition, face centered.",
   cat:
     "Transform the person in this photo into a 3D animated yellow tiger cat " +
-    "character (Pixar-style render) wearing oversized rainbow-lens Pit Viper " +
-    "sunglasses, with joyful cry-laughing tear streaks, tiny fangs showing in a " +
+    "character (Pixar-style render) wearing oversized rainbow-lens wraparound " +
+    "shield sport sunglasses with no text or logos on the frames, with joyful " +
+    "cry-laughing tear streaks, tiny fangs showing in a " +
     "big grin, pointing one paw straight at the viewer. Bright yellow background " +
     "with subtle halftone dots. Square 1:1 profile picture, character centered."
 };
