@@ -2,6 +2,27 @@
    Full-bleed color blocks (yellow → pink → cream → orange), hard ink
    shadows, halftone dots, sticker tilts. NO soft SaaS gradients. */
 
+/* Self-hosted fonts (2026-11-07) — no third-party font CDN, so the poster
+   type renders identically in every webview, including in-app browsers. */
+@font-face {
+  font-family: "Archivo Black";
+  src: url("fonts/ArchivoBlack.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Bangers";
+  src: url("fonts/Bangers.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("fonts/SpaceGrotesk.woff2") format("woff2");
+  font-weight: 400 700;
+  font-display: swap;
+}
+
 :root {
   --ink: #1a1033;
   --pink: #ff2e88;
@@ -140,8 +161,9 @@ a { color: var(--pink); }
 .hero-kicker {
   display: inline-block;
   font-family: "Archivo Black", sans-serif;
-  font-size: 0.8rem;
-  letter-spacing: 0.18em;
+  font-size: clamp(0.6rem, 3.1vw, 0.8rem);
+  letter-spacing: 0.14em;
+  white-space: nowrap;
   background: var(--ink);
   color: var(--yellow);
   padding: 0.5rem 0.9rem;
