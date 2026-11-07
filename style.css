@@ -378,8 +378,8 @@ a { color: var(--pink); }
   padding-bottom: 4.2rem;
 }
 .final-cta .mini-cat { position: relative; z-index: 1; margin-bottom: 0.4rem; }
-.final-cta .mini-cat svg {
-  width: 128px;
+.final-cta .mini-cat img {
+  width: 160px;
   height: auto;
   filter: drop-shadow(6px 6px 0 rgba(26,16,51,0.9));
   transform: rotate(-3deg);
