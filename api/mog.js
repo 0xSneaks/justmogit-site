@@ -10,6 +10,9 @@
 // endpoint returns a clean 503 { error: "key_not_configured" } and the
 // page shows its friendly "being wired up" state.
 
+const fs = require("fs");
+const path = require("path");
+
 const GEMINI_MODEL = process.env.GEMINI_IMAGE_MODEL || "gemini-2.5-flash-image";
 const GEMINI_URL =
   "https://generativelanguage.googleapis.com/v1beta/models/" +
@@ -43,6 +46,22 @@ const PROMPTS = {
     "big grin, pointing one paw straight at the viewer. Bright yellow background " +
     "with subtle halftone dots. Square 1:1 profile picture, character centered."
 };
+
+// Owner-approved style references (Sneaks, 2026-11-07), sent with every "vipers" edit.
+// Same text as REFS_PROMPT in just-mog-it bot/mogme_queue.py. If the files are missing
+// the edit still runs, just without references.
+const REFS_PROMPT = "The images after this text are owner-approved examples of the target look. Copy only how their shades are shaped, fitted to the face and drawn in each picture's own art style. Do NOT copy any text, letters, words, logos or brand names from them (ignore any lettering on their frames), and never copy their faces, characters, clothing, jewellery, captions or backgrounds.";
+function readRef(file) {
+  try {
+    return fs.readFileSync(file).toString("base64");
+  } catch (e) {
+    return null;
+  }
+}
+const STYLE_REFS = [
+  readRef(path.join(__dirname, "_mogrefs", "pass1-glitch-anime.jpg")),
+  readRef(path.join(__dirname, "_mogrefs", "pass2-pepe.jpg"))
+].filter(Boolean);
 
 function send(res, code, obj) {
   res.statusCode = code;
@@ -130,7 +149,13 @@ module.exports = async function handler(req, res) {
             parts: [
               { text: PROMPTS[style] },
               { inline_data: { mime_type: image.mimeType, data: image.data } }
-            ]
+            ].concat(
+              style === "vipers" && STYLE_REFS.length
+                ? [{ text: REFS_PROMPT }].concat(
+                    STYLE_REFS.map((data) => ({ inline_data: { mime_type: "image/jpeg", data: data } }))
+                  )
+                : []
+            )
           }
         ]
       })
