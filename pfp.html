@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOG ME — The JustMogIt PFP Changer</title>
+<meta name="description" content="Two words. That's the whole command. Drop your profile pic in the JustMogIt changer, pick your poison — Pit Vipers, Glitch Mog, or full Mog Cat — and walk out wearing the shades.">
+<link rel="preload" href="fonts/ArchivoBlack.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+<style>
+  /* ===== PFP CHANGER — page-specific, built from the site's poster language ===== */
+  .pfp-nav {
+    position: relative; z-index: 2;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 0.8rem; flex-wrap: wrap;
+    max-width: 1180px; margin: 0 auto 0.4rem;
+  }
+  .pfp-brand {
+    font-family: "Archivo Black", sans-serif;
+    color: var(--ink); text-decoration: none;
+    font-size: 1.15rem; letter-spacing: 0.03em;
+    text-shadow: 2px 2px 0 var(--pink);
+    transform: rotate(-1deg);
+  }
+  .pfp-links { display: flex; gap: 0.55rem; flex-wrap: wrap; }
+  .pfp-links a {
+    font-family: "Bangers", cursive; letter-spacing: 0.06em;
+    font-size: 1.05rem; color: var(--ink); text-decoration: none;
+    background: var(--cream); border: 3px solid var(--ink); border-radius: 999px;
+    padding: 0.3rem 0.85rem 0.15rem; box-shadow: 3px 3px 0 var(--ink);
+  }
+  .pfp-links a.here { background: var(--ink); color: var(--yellow); }
+  .pfp-links a:active { transform: translateY(2px); box-shadow: 1px 1px 0 var(--ink); }
+
+  .pfp-hero { padding-top: 1.4rem; }
+  .mogme-copy {
+    position: relative; z-index: 1;
+    max-width: 640px; margin: 0.4rem auto 0;
+    font-size: clamp(1.05rem, 4vw, 1.3rem);
+    font-weight: 500; line-height: 1.5;
+  }
+  .mogme-copy strong { background: var(--ink); color: var(--yellow); padding: 0 0.3em; }
+
+  /* changer — hot pink block, same as .how */
+  .changer { background: var(--pink); color: var(--cream); }
+  .changer h2 { text-shadow: 0.05em 0.05em 0 var(--ink); }
+  .changer .h2-kicker { color: var(--yellow); }
+
+  .changer-card {
+    background: var(--cream); color: var(--ink);
+    border: 4px solid var(--ink); border-radius: 18px;
+    box-shadow: 9px 9px 0 var(--ink);
+    max-width: 680px; margin: 0 auto;
+    padding: 1.5rem 1.2rem 1.7rem;
+    transform: rotate(-0.6deg);
+    position: relative; z-index: 1;
+  }
+  .changer-card h3 {
+    font-family: "Archivo Black", sans-serif; font-size: 1.15rem;
+    margin: 1.3rem 0 0.7rem; letter-spacing: 0.02em;
+  }
+  .changer-card h3:first-child { margin-top: 0; }
+
+  .dropzone {
+    display: block; cursor: pointer; text-align: center;
+    border: 4px dashed var(--ink); border-radius: 14px;
+    background: #fff; padding: 1.4rem 1rem;
+    transition: transform 0.12s ease, background 0.12s ease;
+  }
+  .dropzone.drag { background: var(--yellow); transform: scale(1.02); }
+  .dropzone .dz-big { font-family: "Archivo Black", sans-serif; font-size: 1.3rem; display: block; margin-bottom: 0.3rem; }
+  .dropzone .dz-small { font-weight: 700; font-size: 0.85rem; letter-spacing: 0.12em; opacity: 0.65; }
+  .dropzone img {
+    max-width: 210px; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover;
+    border: 4px solid var(--ink); border-radius: 14px; box-shadow: 5px 5px 0 var(--ink);
+    margin: 0 auto 0.7rem; display: none;
+  }
+  .dropzone.has-img img { display: block; }
+  .dropzone input { display: none; }
+
+  .styles { display: grid; gap: 0.8rem; }
+  .style-card {
+    display: flex; gap: 0.85rem; align-items: flex-start; cursor: pointer;
+    border: 4px solid var(--ink); border-radius: 14px;
+    background: #fff; padding: 0.9rem 0.95rem;
+    box-shadow: 5px 5px 0 var(--ink);
+    transition: transform 0.12s ease, background 0.12s ease;
+  }
+  .style-card input { position: absolute; opacity: 0; pointer-events: none; }
+  .style-card .sc-icon {
+    flex: 0 0 auto; width: 52px; height: 52px; display: grid; place-items: center;
+    font-size: 1.7rem; background: var(--cream);
+    border: 3px solid var(--ink); border-radius: 50%; box-shadow: 3px 3px 0 var(--ink);
+  }
+  .style-card .sc-name { font-family: "Archivo Black", sans-serif; font-size: 1.12rem; display: block; }
+  .style-card .sc-desc { font-size: 0.95rem; line-height: 1.45; font-weight: 500; }
+  .style-card.sel, .style-card:has(input:checked) { background: var(--yellow); transform: rotate(-1deg) scale(1.015); }
+  .style-card.sel .sc-icon, .style-card:has(input:checked) .sc-icon { background: var(--pink); }
+
+  .mog-btn { width: 100%; margin-top: 1.4rem; font-size: 1.3rem; cursor: pointer; }
+  .mog-btn[disabled] { opacity: 0.45; cursor: not-allowed; transform: none; }
+  .status {
+    min-height: 1.5em; text-align: center; font-weight: 700;
+    margin-top: 1rem; font-size: 1rem; line-height: 1.45;
+  }
+  .status.err { color: #b3001b; }
+
+  .wiring {
+    display: none; margin-top: 1.1rem;
+    background: var(--ink); color: var(--cream);
+    border: 4px solid var(--ink); border-radius: 14px;
+    padding: 1.1rem 1.1rem 1rem; box-shadow: 5px 5px 0 var(--pink);
+    line-height: 1.55;
+  }
+  .wiring.show { display: block; }
+  .wiring .w-big { font-family: "Archivo Black", sans-serif; color: var(--yellow); display: block; font-size: 1.1rem; margin-bottom: 0.35rem; }
+
+  .result-wrap { margin-top: 1.5rem; text-align: center; }
+  .result-frame {
+    position: relative; display: inline-block; max-width: 340px; width: 100%;
+    border: 4px solid var(--ink); border-radius: 14px; overflow: hidden;
+    box-shadow: 7px 7px 0 var(--ink); background: var(--ink);
+    transform: rotate(1deg);
+  }
+  .result-frame img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; }
+  .result-sticker {
+    position: absolute; top: 10px; right: 10px;
+    font-family: "Bangers", cursive; letter-spacing: 0.06em; font-size: 1.05rem;
+    background: var(--lime); color: var(--ink);
+    border: 3px solid var(--ink); border-radius: 999px; box-shadow: 3px 3px 0 var(--ink);
+    padding: 0.25rem 0.8rem 0.1rem; transform: rotate(6deg);
+    display: none;
+  }
+  .result-frame.mogged .result-sticker { display: block; }
+  .frame-caption { font-weight: 700; letter-spacing: 0.14em; font-size: 0.82rem; margin-top: 0.8rem; }
+  .dl-btn { margin-top: 1rem; cursor: pointer; }
+  .dl-btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+  .fineprint { font-size: 0.82rem; opacity: 0.65; font-weight: 500; margin-top: 1rem; line-height: 1.5; }
+
+  .pfp-hero .hero-inner { flex-direction: column; text-align: center; }
+  @media (min-width: 900px) {
+    .pfp-hero .hero-inner { flex-direction: column; text-align: center; }
+    .pfp-hero .cta-row, .pfp-hero .sticker-row { justify-content: center; }
+    .styles { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ======== TICKER ======== -->
+<div class="ticker ticker-top" aria-hidden="true">
+  <div class="ticker-track" data-ticker>
+    <span>MOG ME</span><span class="tick-star">★</span><span>DROP YOUR PFP</span><span class="tick-star">★</span><span>GET MOGGED</span><span class="tick-star">★</span><span>🐱👉</span><span class="tick-star">★</span>
+  </div>
+</div>
+
+<!-- ======== MOG ME — the command ======== -->
+<header class="hero pfp-hero">
+  <div class="halftone" aria-hidden="true"></div>
+  <nav class="pfp-nav">
+    <a class="pfp-brand" href="index.html">JUST MOG IT</a>
+    <div class="pfp-links">
+      <a href="index.html">HOME</a>
+      <a href="pfp.html" class="here">PFP CHANGER</a>
+      <a href="https://x.com/justmogit_bot" target="_blank" rel="noopener">THE BOT ↗</a>
+    </div>
+  </nav>
+  <div class="hero-inner">
+    <div class="type-col">
+      <p class="hero-kicker">★ THE PFP CHANGER ★</p>
+      <h1 class="logo-type">MOG<br><span class="word-mog">ME.</span></h1>
+      <p class="mogme-copy">Two words. That's the whole command. Drop your profile pic in the changer and pick your poison — <strong>Pit Vipers</strong>, <strong>Glitch Mog</strong>, or full <strong>Mog Cat</strong> — and walk out wearing the shades. Same you, just mogged. Wear it loud: every mogged PFP out in the wild is one more person who gets it.</p>
+      <div class="sticker-row" aria-hidden="true">
+        <span class="sticker s1">NO FORMS</span>
+        <span class="sticker s2">JUST SHADES</span>
+        <span class="sticker s3">WEAR IT LOUD</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ======== MARQUEE DIVIDER ======== -->
+<div class="ticker ticker-mid" aria-hidden="true">
+  <div class="ticker-track ticker-track-rev" data-ticker>
+    <span>DROP · PICK · MOG</span><span class="tick-star">★</span><span>SAME YOU, JUST MOGGED</span><span class="tick-star">★</span><span>🐱👉</span><span class="tick-star">★</span>
+  </div>
+</div>
+
+<main>
+  <!-- ======== THE CHANGER — hot pink ======== -->
+  <section class="section changer">
+    <h2><span class="h2-kicker">DROP · PICK · MOG</span>THE CHANGER</h2>
+
+    <div class="changer-card">
+      <h3>1 · DROP YOUR PFP</h3>
+      <label class="dropzone" id="dropzone">
+        <input type="file" id="fileInput" accept="image/*">
+        <img id="previewImg" alt="Your uploaded profile pic">
+        <span class="dz-big" id="dzBig">📸 TAP TO PICK A PHOTO</span>
+        <span class="dz-small" id="dzSmall">OR DRAG &amp; DROP IT HERE · JPG / PNG / WEBP</span>
+      </label>
+
+      <h3>2 · PICK YOUR POISON</h3>
+      <div class="styles" id="styles">
+        <label class="style-card sel">
+          <input type="radio" name="style" value="vipers" checked>
+          <span class="sc-icon">😎</span>
+          <span><span class="sc-name">PIT VIPERS</span>
+          <span class="sc-desc">Your photo, untouched — except you're wearing the rainbow Vipers now. Subtle glitch streaks. Maximum smug.</span></span>
+        </label>
+        <label class="style-card">
+          <input type="radio" name="style" value="glitch">
+          <span class="sc-icon">⚡</span>
+          <span><span class="sc-name">GLITCH MOG</span>
+          <span class="sc-desc">The full glitch-anime takeover. Dark silhouette, oversized pink Vipers, neon slices flying everywhere. GET MOGGED energy.</span></span>
+        </label>
+        <label class="style-card">
+          <input type="radio" name="style" value="cat">
+          <span class="sc-icon">🐱</span>
+          <span><span class="sc-name">MOG CAT</span>
+          <span class="sc-desc">You, but a 3D yellow tiger cat in rainbow Vipers. Cry-laugh tears, little fangs, pointing straight at everyone.</span></span>
+        </label>
+      </div>
+
+      <h3>3 · GET MOGGED</h3>
+      <button class="cta cta-main cta-big mog-btn" id="mogBtn" type="button" disabled>MOG IT 🐱👉</button>
+      <p class="status" id="status" role="status">Drop a pic to get started.</p>
+
+      <div class="wiring" id="wiring">
+        <span class="w-big">🔧 THE CHANGER IS BEING WIRED UP</span>
+        The mog machine is almost ready — check back in a bit and it'll cook your PFP live. Nothing broke; the shades just aren't plugged in yet. Meanwhile your pic stays right here on your phone, and you can still grab the square crop below.
+      </div>
+
+      <div class="result-wrap">
+        <div class="result-frame" id="resultFrame">
+          <img id="resultImg" src="mog-cat-alpha.png" alt="Your mogged profile pic">
+          <span class="result-sticker">MOGGED 😎</span>
+        </div>
+        <p class="frame-caption" id="frameCaption">THIS COULD BE YOU</p>
+        <button class="cta cta-ghost dl-btn" id="dlBtn" type="button" disabled>DOWNLOAD YOUR MOG ↓</button>
+        <p class="fineprint">Square-cropped PNG, ready to upload anywhere. Your photo is only sent to the mog machine when you hit MOG IT — it's never posted or shared by us.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== FINAL CTA — orange ======== -->
+  <section class="section final-cta">
+    <div class="halftone" aria-hidden="true"></div>
+    <div class="mini-cat" aria-hidden="true">
+      <img src="mog-cat-alpha.png" alt="" width="600" height="600">
+    </div>
+    <p class="final-line">WEAR IT LOUD.<br><span>EVERY MOGGED PFP<br>IS ONE MORE WHO GETS IT.</span></p>
+    <a class="cta cta-main cta-big" href="https://x.com/justmogit_bot" target="_blank" rel="noopener">TAG THE BOT 🐱👉</a>
+  </section>
+</main>
+
+<footer>
+  <p class="foot-brand">JUST MOG IT</p>
+  <p><a href="index.html">Home</a> · <a href="pfp.html">PFP Changer</a> · Run by <a href="https://x.com/heySneaks" target="_blank" rel="noopener">@heySneaks</a> · Bot: <a href="https://x.com/justmogit_bot" target="_blank" rel="noopener">@justmogit_bot</a></p>
+  <p class="nfa">Memecoins are wildly risky and most go to zero. Nothing here is financial advice — this is a launch bot, not a crystal ball. Only ever play with money you can afford to lose, and do your own research.</p>
+</footer>
+
+<script>
+(function () {
+  "use strict";
+  var dz = document.getElementById("dropzone");
+  var fileInput = document.getElementById("fileInput");
+  var previewImg = document.getElementById("previewImg");
+  var dzBig = document.getElementById("dzBig");
+  var dzSmall = document.getElementById("dzSmall");
+  var mogBtn = document.getElementById("mogBtn");
+  var dlBtn = document.getElementById("dlBtn");
+  var status = document.getElementById("status");
+  var wiring = document.getElementById("wiring");
+  var resultFrame = document.getElementById("resultFrame");
+  var resultImg = document.getElementById("resultImg");
+  var frameCaption = document.getElementById("frameCaption");
+
+  var workingDataUrl = null; // downscaled upload (what we send + fall back to)
+  var resultDataUrl = null;  // generated mog
+
+  function setStatus(msg, isErr) {
+    status.textContent = msg;
+    status.className = "status" + (isErr ? " err" : "");
+  }
+
+  function selectedStyle() {
+    var el = document.querySelector('input[name="style"]:checked');
+    return el ? el.value : "vipers";
+  }
+
+  // Style card highlight (JS class backs up the :has() styling)
+  var cards = document.querySelectorAll(".style-card");
+  cards.forEach(function (card) {
+    card.addEventListener("click", function () {
+      cards.forEach(function (c) { c.classList.remove("sel"); });
+      card.classList.add("sel");
+    });
+  });
+
+  function loadFile(file) {
+    if (!file) return;
+    if (!/^image\//.test(file.type)) {
+      setStatus("That's not an image — grab a JPG, PNG or WebP.", true);
+      return;
+    }
+    var reader = new FileReader();
+    reader.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        var max = 1024;
+        var scale = Math.min(1, max / Math.max(img.width, img.height));
+        var w = Math.round(img.width * scale);
+        var h = Math.round(img.height * scale);
+        var canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+        workingDataUrl = canvas.toDataURL("image/jpeg", 0.9);
+        resultDataUrl = null;
+        previewImg.src = workingDataUrl;
+        dz.classList.add("has-img");
+        dzBig.textContent = "📸 THAT'S THE ONE";
+        dzSmall.textContent = "TAP TO PICK A DIFFERENT ONE";
+        resultImg.src = workingDataUrl;
+        resultFrame.classList.remove("mogged");
+        frameCaption.textContent = "YOU — UNMOGGED (FOR NOW)";
+        mogBtn.disabled = false;
+        dlBtn.disabled = false;
+        wiring.classList.remove("show");
+        setStatus("Locked in. Pick your poison and hit MOG IT.");
+      };
+      img.onerror = function () { setStatus("Couldn't read that image — try another one.", true); };
+      img.src = reader.result;
+    };
+    reader.onerror = function () { setStatus("Couldn't read that file — try another one.", true); };
+    reader.readAsDataURL(file);
+  }
+
+  fileInput.addEventListener("change", function () {
+    loadFile(fileInput.files && fileInput.files[0]);
+    fileInput.value = "";
+  });
+  ["dragenter", "dragover"].forEach(function (ev) {
+    dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.add("drag"); });
+  });
+  ["dragleave", "drop"].forEach(function (ev) {
+    dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.remove("drag"); });
+  });
+  dz.addEventListener("drop", function (e) {
+    var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+    loadFile(f);
+  });
+
+  mogBtn.addEventListener("click", function () {
+    if (!workingDataUrl) return;
+    mogBtn.disabled = true;
+    mogBtn.textContent = "MOGGING… ⏳";
+    setStatus("Sending you to the mog machine…");
+    fetch("/api/mog", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ image: workingDataUrl, style: selectedStyle() })
+    })
+      .then(function (res) {
+        return res.json().catch(function () { return { error: "bad_response" }; })
+          .then(function (data) { return { ok: res.ok, data: data }; });
+      })
+      .then(function (out) {
+        if (out.ok && out.data && out.data.image) {
+          resultDataUrl = out.data.image;
+          resultImg.src = resultDataUrl;
+          resultFrame.classList.add("mogged");
+          frameCaption.textContent = "YOU — MOGGED 😎";
+          wiring.classList.remove("show");
+          setStatus("MOGGED. Download it and wear it loud.");
+        } else if (out.data && out.data.error === "key_not_configured") {
+          wiring.classList.add("show");
+          setStatus("So close — the changer is being wired up. Check back soon.");
+        } else if (out.data && out.data.error === "image_too_large") {
+          setStatus("That image is too big — try a smaller one.", true);
+        } else {
+          setStatus("The mog machine hiccuped — give it another shot.", true);
+        }
+      })
+      .catch(function () {
+        setStatus("Couldn't reach the mog machine — check your connection and try again.", true);
+      })
+      .finally(function () {
+        mogBtn.disabled = false;
+        mogBtn.textContent = "MOG IT 🐱👉";
+      });
+  });
+
+  dlBtn.addEventListener("click", function () {
+    var src = resultDataUrl || workingDataUrl;
+    if (!src) return;
+    var img = new Image();
+    img.onload = function () {
+      var size = 1024;
+      var canvas = document.createElement("canvas");
+      canvas.width = size; canvas.height = size;
+      var side = Math.min(img.width, img.height);
+      var sx = (img.width - side) / 2;
+      var sy = (img.height - side) / 2;
+      canvas.getContext("2d").drawImage(img, sx, sy, side, side, 0, 0, size, size);
+      if (canvas.toBlob) {
+        canvas.toBlob(function (blob) {
+          var a = document.createElement("a");
+          a.href = URL.createObjectURL(blob);
+          a.download = "get-mogged-pfp.png";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+          setTimeout(function () { URL.revokeObjectURL(a.href); }, 4000);
+        }, "image/png");
+      } else {
+        var a = document.createElement("a");
+        a.href = canvas.toDataURL("image/png");
+        a.download = "get-mogged-pfp.png";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+    };
+    img.src = src;
+  });
+
+  // Ticker duplication (same trick as script.js, kept local so index stays untouched)
+  document.querySelectorAll("[data-ticker]").forEach(function (track) {
+    track.innerHTML += track.innerHTML;
+  });
+})();
+</script>
+</body>
+</html>
